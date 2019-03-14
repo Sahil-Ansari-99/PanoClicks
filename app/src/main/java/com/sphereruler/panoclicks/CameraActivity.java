@@ -24,11 +24,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
-import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+
 
 public class CameraActivity extends Activity implements SensorEventListener {
     private Camera camera;
@@ -40,6 +42,9 @@ public class CameraActivity extends Activity implements SensorEventListener {
     TextView testAzimuth;
     View myRectangleView;
     float azimuth, roll, pitch;
+    float finalAzimuth,finalRoll,finalPitch;
+    List<Float>[] rollingAverage = new List[3];
+    private static final int MAX_SAMPLE_SIZE = 10;
 
     @Override
     protected void onCreate( Bundle savedInstanceState) {
@@ -58,6 +63,10 @@ public class CameraActivity extends Activity implements SensorEventListener {
         testAzimuth=findViewById(R.id.testAzimuth);
         myRectangleView=findViewById(R.id.myRectangleView);
         cameraButton=(FloatingActionButton)findViewById(R.id.button_capture);
+
+        rollingAverage[0] = new ArrayList<Float>();
+        rollingAverage[1] = new ArrayList<Float>();
+        rollingAverage[2] = new ArrayList<Float>();
 
         final Camera.PictureCallback pictureCallback=new Camera.PictureCallback() {
             @Override
@@ -131,6 +140,19 @@ public class CameraActivity extends Activity implements SensorEventListener {
         return mediaFile;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+
     float[] mGravity;
     float[] mGeomagnetic;
 
@@ -153,17 +175,48 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 roll = orientation[2];
 
                 azimuth= (float) Math.toDegrees(azimuth);
+                pitch= (float) Math.toDegrees(pitch);
+                roll= (float) Math.toDegrees(roll);
 
-                // orientation contains: azimut, pitch and roll
+                rollingAverage[0] = roll(rollingAverage[0], azimuth);
+                rollingAverage[1] = roll(rollingAverage[1], pitch);
+                rollingAverage[2] = roll(rollingAverage[2], roll);
 
-                testAzimuth.setText(""+azimuth);
-                
-                    GradientDrawable myGrad= (GradientDrawable) myRectangleView.getBackground();
+                finalAzimuth = averageList(rollingAverage[0]);
+                finalPitch = averageList(rollingAverage[1]);
+                finalRoll = averageList(rollingAverage[2]);
+
+                if(finalAzimuth>-170 && finalAzimuth<-160) {
+                    GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
+                    myGrad.setStroke(2, Color.GREEN);
+                    Toast.makeText(getApplicationContext(), String.valueOf(finalAzimuth), Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
                     myGrad.setStroke(2, Color.RED);
-                    Toast.makeText(getApplicationContext(),String.valueOf(azimuth),Toast.LENGTH_SHORT).show();
+                }
 
             }
         }
+    }
+
+    public List<Float> roll(List<Float> list, float newMember){
+        if(list.size() == MAX_SAMPLE_SIZE){
+            list.remove(0);
+        }
+        list.add(newMember);
+        return list;
+    }
+
+    public float averageList(List<Float> tallyUp){
+
+        float total=0;
+        for(float item : tallyUp ){
+            total+=item;
+        }
+        total = total/tallyUp.size();
+
+        return total;
     }
 
     @Override
