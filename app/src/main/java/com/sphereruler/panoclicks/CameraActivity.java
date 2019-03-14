@@ -1,7 +1,14 @@
 package com.sphereruler.panoclicks;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -9,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -22,22 +30,33 @@ import static android.content.ContentValues.TAG;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 
-public class CameraActivity extends Activity {
+public class CameraActivity extends Activity implements SensorEventListener {
     private Camera camera;
     private CameraPreview cameraPreview;
     private FloatingActionButton cameraButton;
+    SensorManager mSensorManager;
+    Sensor accelerometer;
+    Sensor magnetometer;
+    TextView testAzimuth;
+    View myRectangleView;
+    float azimuth, roll, pitch;
 
     @Override
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
         camera=getCameraInstance();
         camera.setDisplayOrientation(90);
         cameraPreview=new CameraPreview(this, camera);
         FrameLayout frameLayout=(FrameLayout)findViewById(R.id.camera_preview);
         frameLayout.addView(cameraPreview);
-
+        testAzimuth=findViewById(R.id.testAzimuth);
+        myRectangleView=findViewById(R.id.myRectangleView);
         cameraButton=(FloatingActionButton)findViewById(R.id.button_capture);
 
         final Camera.PictureCallback pictureCallback=new Camera.PictureCallback() {
@@ -110,5 +129,45 @@ public class CameraActivity extends Activity {
         }
 
         return mediaFile;
+    }
+
+    float[] mGravity;
+    float[] mGeomagnetic;
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            mGravity = event.values;
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+            mGeomagnetic = event.values;
+        if (mGravity != null && mGeomagnetic != null) {
+            float R[] = new float[9];
+            float I[] = new float[9];
+            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+            if (success) {
+                float orientation[] = new float[3];
+                SensorManager.getOrientation(R, orientation);
+                azimuth = orientation[0];
+                pitch = orientation[1];
+                roll = orientation[2];
+
+                azimuth= (float) Math.toDegrees(azimuth);
+
+                // orientation contains: azimut, pitch and roll
+
+                testAzimuth.setText(""+azimuth);
+                
+                    GradientDrawable myGrad= (GradientDrawable) myRectangleView.getBackground();
+                    myGrad.setStroke(2, Color.RED);
+                    Toast.makeText(getApplicationContext(),String.valueOf(azimuth),Toast.LENGTH_SHORT).show();
+
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
