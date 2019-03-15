@@ -1,7 +1,10 @@
 package com.sphereruler.panoclicks;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.hardware.Camera;
@@ -9,6 +12,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -19,6 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -44,7 +49,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
     float azimuth, roll, pitch;
     float finalAzimuth,finalRoll,finalPitch;
     List<Float>[] rollingAverage = new List[3];
-    private static final int MAX_SAMPLE_SIZE = 10;
+    private static final int MAX_SAMPLE_SIZE = 20;
 
     @Override
     protected void onCreate( Bundle savedInstanceState) {
@@ -64,6 +69,10 @@ public class CameraActivity extends Activity implements SensorEventListener {
         myRectangleView=findViewById(R.id.myRectangleView);
         cameraButton=(FloatingActionButton)findViewById(R.id.button_capture);
 
+        Camera.Parameters params= camera.getParameters();
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_EDOF);
+        camera.setParameters(params);
+
         rollingAverage[0] = new ArrayList<Float>();
         rollingAverage[1] = new ArrayList<Float>();
         rollingAverage[2] = new ArrayList<Float>();
@@ -77,6 +86,15 @@ public class CameraActivity extends Activity implements SensorEventListener {
                     return;
                 }
 
+//                Bitmap pictureMap=BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+//                Matrix pictureMatrix=new Matrix();
+//                pictureMatrix.postRotate(90);
+//                Bitmap rotatedPicture=Bitmap.createBitmap(pictureMap, 0, 0, pictureMap.getWidth(), pictureMap.getHeight(), pictureMatrix, true);
+//
+//                ByteArrayOutputStream bos=new ByteArrayOutputStream();
+//                rotatedPicture.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+//                byte[] savedBytes=bos.toByteArray();
+
                 try {
                     FileOutputStream fos = new FileOutputStream(pictureFile);
                     fos.write(bytes);
@@ -86,6 +104,16 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 } catch (IOException e) {
                     Log.d(TAG, "Error accessing file: " + e.getMessage());
                 }
+
+                try {
+                    ExifInterface exifInterface = new ExifInterface(pictureFile.getPath());
+                    String imgISO=exifInterface.getAttribute(ExifInterface.TAG_ISO);
+                    Log.d("ISO", imgISO);
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+
+                camera.startPreview();
             }
         };
 
