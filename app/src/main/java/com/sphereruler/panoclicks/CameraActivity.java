@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.hardware.Camera;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -44,7 +47,6 @@ public class CameraActivity extends Activity implements SensorEventListener {
     SensorManager mSensorManager;
     Sensor accelerometer;
     Sensor magnetometer;
-    TextView testAzimuth;
     View myRectangleView;
     float azimuth, roll, pitch;
     float finalAzimuth,finalRoll,finalPitch;
@@ -65,12 +67,11 @@ public class CameraActivity extends Activity implements SensorEventListener {
         cameraPreview=new CameraPreview(this, camera);
         FrameLayout frameLayout=(FrameLayout)findViewById(R.id.camera_preview);
         frameLayout.addView(cameraPreview);
-        testAzimuth=findViewById(R.id.testAzimuth);
         myRectangleView=findViewById(R.id.myRectangleView);
         cameraButton=(FloatingActionButton)findViewById(R.id.button_capture);
 
         Camera.Parameters params= camera.getParameters();
-        params.setFocusMode(Camera.Parameters.FOCUS_MODE_EDOF);
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         camera.setParameters(params);
 
         rollingAverage[0] = new ArrayList<Float>();
@@ -251,4 +252,6 @@ public class CameraActivity extends Activity implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
+
 }
