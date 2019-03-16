@@ -10,13 +10,13 @@ import android.util.Log;
 import android.widget.TextView;
 
 public class SensorActivity extends Activity implements SensorEventListener {
-    TextView polarAngle, azimuthAngle, pitchAngle;
+    TextView polarAngle, azimuthAngle, pitchAngle,zAngle;
 
     private SensorManager mSensorManager;
     Sensor accelerometer;
     Sensor magnetometer;
     Sensor angle;
-    float azimuth, roll, pitch;
+    float azimuth, roll, pitch, polar;
 //    float mAzimuth,mPitch,mRoll;
 
     @Override
@@ -30,6 +30,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
         polarAngle = (TextView) findViewById(R.id.polarAngle);
         azimuthAngle = (TextView) findViewById(R.id.azimuthAngle);
         pitchAngle = (TextView) findViewById(R.id.pitchAngle);
+        zAngle=findViewById(R.id.zAngle);
 
     }
 
@@ -72,6 +73,12 @@ public class SensorActivity extends Activity implements SensorEventListener {
                 azimuth = orientation[0];
                 pitch = orientation[1];
                 roll = orientation[2];
+
+//                azimuth= (float) Math.toDegrees(azimuth);
+//                pitch= (float) Math.toDegrees(pitch);
+//                roll= (float) Math.toDegrees(roll);
+
+                polar= (float) Math.acos(Math.cos(pitch)*Math.cos(roll));
                 // orientation contains: azimut, pitch and roll
             }
 //        if (event.sensor.getType()==Sensor.TYPE_ORIENTATION) {
@@ -110,6 +117,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
             polarAngle.setText("" + Math.round(Math.toDegrees(roll)));
             azimuthAngle.setText("" + Math.round(Math.toDegrees(azimuth)));
             pitchAngle.setText("" + Math.round(Math.toDegrees(pitch)));
+            zAngle.setText(""+Math.round(Math.toDegrees(polar)));
 
         }
 
