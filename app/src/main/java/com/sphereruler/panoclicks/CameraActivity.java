@@ -48,7 +48,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
     Sensor accelerometer;
     Sensor magnetometer;
     View myRectangleView;
-    float azimuth, roll, pitch;
+    float azimuth, roll, pitch, polar;
     float finalAzimuth,finalRoll,finalPitch;
     List<Float>[] rollingAverage = new List[3];
     private static final int MAX_SAMPLE_SIZE = 20;
@@ -215,12 +215,19 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 finalPitch = averageList(rollingAverage[1]);
                 finalRoll = averageList(rollingAverage[2]);
 
-                if(finalAzimuth>-170 && finalAzimuth<-160) {
+                polar= (float) Math.acos(Math.cos(finalPitch)*Math.cos(finalRoll));
+                polar=Math.round(Math.toDegrees(polar));
+
+                float lowerLimit= (float) 85.0;
+                float upperLimit= (float) 95.0;
+
+                if(lowerLimit<=polar && polar<=upperLimit) {
                     GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
                     myGrad.setStroke(2, Color.GREEN);
-                    Toast.makeText(getApplicationContext(), String.valueOf(finalAzimuth), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), String.valueOf(polar), Toast.LENGTH_SHORT).show();
                 }
                 else{
+                    Toast.makeText(getApplicationContext(), String.valueOf(polar), Toast.LENGTH_SHORT).show();
                     GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
                     myGrad.setStroke(2, Color.RED);
                 }
