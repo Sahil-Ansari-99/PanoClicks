@@ -57,6 +57,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
     RootObject rootObject;
     float azimuth, roll, pitch, polar;
     float finalAzimuth,finalRoll,finalPitch;
+    View upArrow,downArrow,leftArrow,rightArrow;
     List<Float>[] rollingAverage = new List[3];
     List<Angles> anglesList;
     private static final int MAX_SAMPLE_SIZE = 20;
@@ -92,6 +93,13 @@ public class CameraActivity extends Activity implements SensorEventListener {
         rollingAverage[0] = new ArrayList<Float>();
         rollingAverage[1] = new ArrayList<Float>();
         rollingAverage[2] = new ArrayList<Float>();
+
+
+        upArrow=findViewById(R.id.camera_arrow_up);
+        downArrow=findViewById(R.id.camera_arrow_down);
+        leftArrow=findViewById(R.id.camera_arrow_left);
+        rightArrow=findViewById(R.id.camera_arrow_right);
+
 
         String data=loadJSONData();
         loadModelData(data);
@@ -258,23 +266,68 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 polar= (float) Math.acos(Math.cos(finalPitch)*Math.cos(finalRoll));
                 polar=Math.round(Math.toDegrees(polar));
 
-                azimuth= (float) Math.toDegrees(azimuth);
-                pitch= (float) Math.toDegrees(pitch);
-                roll= (float) Math.toDegrees(roll);
+                finalAzimuth= (float) Math.toDegrees(finalAzimuth);
+                finalPitch= (float) Math.toDegrees(finalPitch);
+                finalRoll= (float) Math.toDegrees(finalRoll);
 
-                float lowerLimit= (float) 85.0;
-                float upperLimit= (float) 95.0;
+                float UpperLimitPolar = 95;
+                float LowerLimitPolar = 85;
 
-                if(lowerLimit<=polar && polar<=upperLimit) {
-                    GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
-                    myGrad.setStroke(2, Color.GREEN);
-                    Toast.makeText(getApplicationContext(), String.valueOf(polar), Toast.LENGTH_SHORT).show();
+                float UpperLimitAzimuth = 5;
+                float LowerLimitAzimuth = -5;
+
+                GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
+                if (polar >= LowerLimitPolar && polar <= UpperLimitPolar) {
+                    if (finalAzimuth >= LowerLimitAzimuth && finalAzimuth <= UpperLimitAzimuth) {
+                        myGrad.setStroke(2, Color.GREEN);
+                        Toast.makeText(getApplicationContext(), String.valueOf(polar) + " + " + String.valueOf(finalAzimuth), Toast.LENGTH_SHORT).show();
+                        upArrow.setVisibility(View.INVISIBLE);
+                        downArrow.setVisibility(View.INVISIBLE);
+                        leftArrow.setVisibility(View.INVISIBLE);
+                        rightArrow.setVisibility(View.INVISIBLE);
+                    }
+                    else if(finalAzimuth>=UpperLimitAzimuth)
+                    {
+                        leftArrow.setVisibility(View.VISIBLE);
+                        rightArrow.setVisibility(View.INVISIBLE);
+                        myGrad.setStroke(2, Color.RED);
+                    }
+                    else
+                    {
+                        leftArrow.setVisibility(View.INVISIBLE);
+                        rightArrow.setVisibility(View.VISIBLE);
+                        myGrad.setStroke(2, Color.RED);
+                    }
                 }
-                else{
-                    Toast.makeText(getApplicationContext(), String.valueOf(polar), Toast.LENGTH_SHORT).show();
-                    GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
+                else {
+
+                    if (polar >= UpperLimitPolar) {
+                        upArrow.setVisibility(View.INVISIBLE);
+                        downArrow.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        downArrow.setVisibility(View.INVISIBLE);
+                        upArrow.setVisibility(View.VISIBLE);
+                    }
+
+                    if (finalAzimuth >= LowerLimitAzimuth && finalAzimuth <= UpperLimitAzimuth) {
+                        leftArrow.setVisibility(View.INVISIBLE);
+                        rightArrow.setVisibility(View.INVISIBLE);
+                    }
+                    else if (finalAzimuth <= LowerLimitAzimuth) {
+                        leftArrow.setVisibility(View.INVISIBLE);
+                        rightArrow.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        leftArrow.setVisibility(View.VISIBLE);
+                        rightArrow.setVisibility(View.INVISIBLE);
+                    }
+
+
                     myGrad.setStroke(2, Color.RED);
+                    Toast.makeText(getApplicationContext(), String.valueOf(polar) + " + " + String.valueOf(finalAzimuth), Toast.LENGTH_SHORT).show();
                 }
+
 
             }
         }

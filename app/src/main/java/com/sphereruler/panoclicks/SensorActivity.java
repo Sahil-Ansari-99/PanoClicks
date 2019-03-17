@@ -15,7 +15,6 @@ public class SensorActivity extends Activity implements SensorEventListener {
     private SensorManager mSensorManager;
     Sensor accelerometer;
     Sensor magnetometer;
-    Sensor angle;
     float azimuth, roll, pitch, polar;
 //    float mAzimuth,mPitch,mRoll;
 
@@ -78,7 +77,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 //                pitch= (float) Math.toDegrees(pitch);
 //                roll= (float) Math.toDegrees(roll);
 
-                polar= (float) Math.acos(Math.cos(pitch)*Math.cos(roll));
+                polar = (float) Math.acos(Math.cos(pitch)*Math.cos(roll));
                 // orientation contains: azimut, pitch and roll
             }
 //        if (event.sensor.getType()==Sensor.TYPE_ORIENTATION) {
