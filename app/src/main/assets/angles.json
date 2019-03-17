@@ -1,0 +1,30 @@
+{
+	"angles":[
+		{"polar":90.0,"azimuth":0.0},
+		{"polar":90.0,"azimuth":45.0},
+		{"polar":90.0,"azimuth":90.0},
+		{"polar":90.0,"azimuth":135.0},
+		{"polar":90.0,"azimuth":180.0},
+		{"polar":90.0,"azimuth":225.0},
+		{"polar":90.0,"azimuth":270.0},
+		{"polar":90.0,"azimuth":315.0},
+		{"polar":45.0,"azimuth":0.0},
+		{"polar":45.0,"azimuth":90.0},
+		{"polar":45.0,"azimuth":180.0},
+		{"polar":45.0,"azimuth":270.0},
+		{"polar":54.7,"azimuth":45.0},
+		{"polar":54.7,"azimuth":135.0},
+		{"polar":54.7,"azimuth":225.0},
+		{"polar":54.7,"azimuth":315.0},
+		{"polar":135.0,"azimuth":0.0},
+		{"polar":135.0,"azimuth":90.0},
+		{"polar":135.0,"azimuth":180.0},
+		{"polar":135.0,"azimuth":270.0},
+		{"polar":125.3,"azimuth":45.0},
+		{"polar":125.3,"azimuth":135.0},
+		{"polar":125.3,"azimuth":225.0},
+		{"polar":125.3,"azimuth":315.0},
+		{"polar":0.0,"azimuth":0.0},
+		{"polar":190.0,"azimuth":0.0}
+	]
+}

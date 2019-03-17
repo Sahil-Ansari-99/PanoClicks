@@ -1,6 +1,7 @@
 package com.sphereruler.panoclicks;
 
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -26,11 +27,16 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.sphereruler.panoclicks.Model.Angles;
+import com.sphereruler.panoclicks.Model.RootObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,10 +54,19 @@ public class CameraActivity extends Activity implements SensorEventListener {
     Sensor accelerometer;
     Sensor magnetometer;
     View myRectangleView;
+    RootObject rootObject;
     float azimuth, roll, pitch, polar;
     float finalAzimuth,finalRoll,finalPitch;
     List<Float>[] rollingAverage = new List[3];
+    List<Angles> anglesList;
     private static final int MAX_SAMPLE_SIZE = 20;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        String data=loadJSONData();
+        loadModelData(data);
+    }
 
     @Override
     protected void onCreate( Bundle savedInstanceState) {
@@ -77,6 +92,10 @@ public class CameraActivity extends Activity implements SensorEventListener {
         rollingAverage[0] = new ArrayList<Float>();
         rollingAverage[1] = new ArrayList<Float>();
         rollingAverage[2] = new ArrayList<Float>();
+
+        String data=loadJSONData();
+        loadModelData(data);
+        anglesList=rootObject.getAngles();
 
         final Camera.PictureCallback pictureCallback=new Camera.PictureCallback() {
             @Override
@@ -126,6 +145,31 @@ public class CameraActivity extends Activity implements SensorEventListener {
             }
         });
 
+    }
+
+    public String loadJSONData(){
+        String json;
+        try{
+            AssetManager assetManager=getAssets();
+            InputStream stream=assetManager.open("angles.json");
+            int size = stream.available();
+            byte[] buffer = new byte[size];
+            stream.read(buffer);
+            stream.close();
+            json = new String(buffer, "UTF-8");
+        }catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
+//        Log.e("Test", json);
+        return json;
+    }
+
+    public void loadModelData(String s){
+        Gson gson=new Gson();
+//        Log.e("Start","Success");
+        rootObject=gson.fromJson(s, RootObject.class);
+//        Log.e("Test",rootObject.getCategories().getBundesliga().get(1).getTitle());
     }
 
     public static Camera getCameraInstance(){
@@ -203,10 +247,6 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 pitch = orientation[1];
                 roll = orientation[2];
 
-                azimuth= (float) Math.toDegrees(azimuth);
-                pitch= (float) Math.toDegrees(pitch);
-                roll= (float) Math.toDegrees(roll);
-
                 rollingAverage[0] = roll(rollingAverage[0], azimuth);
                 rollingAverage[1] = roll(rollingAverage[1], pitch);
                 rollingAverage[2] = roll(rollingAverage[2], roll);
@@ -217,6 +257,10 @@ public class CameraActivity extends Activity implements SensorEventListener {
 
                 polar= (float) Math.acos(Math.cos(finalPitch)*Math.cos(finalRoll));
                 polar=Math.round(Math.toDegrees(polar));
+
+                azimuth= (float) Math.toDegrees(azimuth);
+                pitch= (float) Math.toDegrees(pitch);
+                roll= (float) Math.toDegrees(roll);
 
                 float lowerLimit= (float) 85.0;
                 float upperLimit= (float) 95.0;
