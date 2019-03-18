@@ -113,97 +113,18 @@ public class CameraActivity extends Activity implements SensorEventListener {
         currAzimuth= (float) anglesList.get(0).getAzimuth();
         currPolar= (float) anglesList.get(0).getPolar();
 
-        final Camera.PictureCallback pictureCallback=new Camera.PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] bytes, Camera camera) {
-//                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-//                if (pictureFile == null){
-//                    Log.d(TAG, "Error creating media file, check storage permissions");
-//                    return;
-//                }
 
-//                Bitmap pictureMap=BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-//                Matrix pictureMatrix=new Matrix();
-//                pictureMatrix.postRotate(90);
-//                Bitmap rotatedPicture=Bitmap.createBitmap(pictureMap, 0, 0, pictureMap.getWidth(), pictureMap.getHeight(), pictureMatrix, true);
-//
-//                ByteArrayOutputStream bos=new ByteArrayOutputStream();
-//                rotatedPicture.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-//                byte[] savedBytes=bos.toByteArray();
-
-//                try {
-//                    FileOutputStream fos = new FileOutputStream(pictureFile);
-//                    fos.write(bytes);
-//                    fos.close();
-//                } catch (FileNotFoundException e) {
-//                    Log.d(TAG, "File not found: " + e.getMessage());
-//                } catch (IOException e) {
-//                    Log.d(TAG, "Error accessing file: " + e.getMessage());
-//                }
-//
-//                try {
-//                    ExifInterface exifInterface = new ExifInterface(pictureFile.getPath());
-//                    String imgISO=exifInterface.getAttribute(ExifInterface.TAG_ISO);
-//                    Log.d("ISO", imgISO);
-//                }catch (IOException e){
-//                    e.printStackTrace();
-//                }
-
-                try {
-                    Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                    String fileName = "JPEG_" + timeStamp + "_";
-//                    File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                    File storageDir = new File(Environment.getExternalStorageDirectory() +
-                            File.separator + "PanoClicks");
-                    boolean success = true;
-
-                    if(storageDir.isDirectory() && storageDir.exists()){
-                        Log.e("Test file", "File exists");
-                    }else{
-                        success=storageDir.mkdirs();
-                    }
-
-                    if (success) {
-                        File storageFolder = new File(storageDir + File.separator + folderTimeStamp);
-                        boolean folderCreated=true;
-
-                        if(storageFolder.isDirectory() && storageFolder.exists()){
-                            Log.e("Test Directory", "Directory exists");
-                        }else{
-                            folderCreated=storageFolder.mkdirs();
-                        }
-                        
-                        if(folderCreated) {
-                            try {
-                                File image = File.createTempFile(fileName, ".jpg", storageFolder);
-                                FileOutputStream fos = new FileOutputStream(image);
-                                pic.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                                fos.close();
-                                Toast.makeText(getApplicationContext(), "Image saved in" + storageDir.toString(), Toast.LENGTH_SHORT).show();
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                    } catch(Exception e){
-                        e.printStackTrace();
-                    }
-                camera.startPreview();
-            }
-        };
 
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                camera.takePicture(null, null, pictureCallback);
-                counter++;
-                if(counter<anglesList.size()){
-                    currAzimuth= (float) anglesList.get(counter).getAzimuth();
-                    currPolar= (float) anglesList.get(counter).getPolar();
-                }
-                Toast.makeText(getApplicationContext(), "Button Clicked", Toast.LENGTH_LONG).show();
+//                camera.takePicture(null, null, pictureCallback);
+//                counter++;
+//                if(counter<anglesList.size()){
+//                    currAzimuth= (float) anglesList.get(counter).getAzimuth();
+//                    currPolar= (float) anglesList.get(counter).getPolar();
+//                }
+//                Toast.makeText(getApplicationContext(), "Button Clicked", Toast.LENGTH_LONG).show();
 
             }
         });
@@ -302,8 +223,90 @@ public class CameraActivity extends Activity implements SensorEventListener {
         if (mGravity != null && mGeomagnetic != null) {
             float R[] = new float[9];
             float I[] = new float[9];
-            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
-            if (success) {
+
+            final Camera.PictureCallback pictureCallback=new Camera.PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] bytes, Camera camera) {
+//                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+//                if (pictureFile == null){
+//                    Log.d(TAG, "Error creating media file, check storage permissions");
+//                    return;
+//                }
+
+//                Bitmap pictureMap=BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+//                Matrix pictureMatrix=new Matrix();
+//                pictureMatrix.postRotate(90);
+//                Bitmap rotatedPicture=Bitmap.createBitmap(pictureMap, 0, 0, pictureMap.getWidth(), pictureMap.getHeight(), pictureMatrix, true);
+//
+//                ByteArrayOutputStream bos=new ByteArrayOutputStream();
+//                rotatedPicture.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+//                byte[] savedBytes=bos.toByteArray();
+
+//                try {
+//                    FileOutputStream fos = new FileOutputStream(pictureFile);
+//                    fos.write(bytes);
+//                    fos.close();
+//                } catch (FileNotFoundException e) {
+//                    Log.d(TAG, "File not found: " + e.getMessage());
+//                } catch (IOException e) {
+//                    Log.d(TAG, "Error accessing file: " + e.getMessage());
+//                }
+//
+//                try {
+//                    ExifInterface exifInterface = new ExifInterface(pictureFile.getPath());
+//                    String imgISO=exifInterface.getAttribute(ExifInterface.TAG_ISO);
+//                    Log.d("ISO", imgISO);
+//                }catch (IOException e){
+//                    e.printStackTrace();
+//                }
+
+                    try {
+                        Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                        String fileName = "JPEG_" + timeStamp + "_";
+//                    File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                        File storageDir = new File(Environment.getExternalStorageDirectory() +
+                                File.separator + "PanoClicks");
+                        boolean success = true;
+
+                        if(storageDir.isDirectory() && storageDir.exists()){
+                            Log.e("Test file", "File exists");
+                        }else{
+                            success=storageDir.mkdirs();
+                        }
+
+                        if (success) {
+                            File storageFolder = new File(storageDir + File.separator + folderTimeStamp);
+                            boolean folderCreated=true;
+
+                            if(storageFolder.isDirectory() && storageFolder.exists()){
+                                Log.e("Test Directory", "Directory exists");
+                            }else{
+                                folderCreated=storageFolder.mkdirs();
+                            }
+
+                            if(folderCreated) {
+                                try {
+                                    File image = File.createTempFile(fileName, ".jpg", storageFolder);
+                                    FileOutputStream fos = new FileOutputStream(image);
+                                    pic.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                                    fos.close();
+                                    Toast.makeText(getApplicationContext(), "Image saved in" + storageDir.toString(), Toast.LENGTH_SHORT).show();
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    } catch(Exception e){
+                        e.printStackTrace();
+                    }
+                    camera.startPreview();
+                }
+            };
+
+            boolean successMatrix = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+            if (successMatrix) {
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
                 azimuth = orientation[0];
@@ -340,6 +343,15 @@ public class CameraActivity extends Activity implements SensorEventListener {
                         downArrow.setVisibility(View.INVISIBLE);
                         leftArrow.setVisibility(View.INVISIBLE);
                         rightArrow.setVisibility(View.INVISIBLE);
+
+                        camera.takePicture(null, null, pictureCallback);
+                        counter++;
+                        if(counter<anglesList.size()){
+                            currAzimuth= (float) anglesList.get(counter).getAzimuth();
+                            currPolar= (float) anglesList.get(counter).getPolar();
+                        }
+                        Toast.makeText(getApplicationContext(), "Button Clicked", Toast.LENGTH_LONG).show();
+
                     }
                     else if(finalAzimuth>=UpperLimitAzimuth)
                     {
