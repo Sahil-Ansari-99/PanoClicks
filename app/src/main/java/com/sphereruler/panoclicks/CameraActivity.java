@@ -200,14 +200,28 @@ public class CameraActivity extends Activity implements SensorEventListener {
     @Override
     protected void onResume() {
         super.onResume();
+//        resumeCamera();
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
     }
+
+//    public void resumeCamera(){
+//        camera=getCameraInstance();
+//        camera.setDisplayOrientation(90);
+//    }
 
     @Override
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
+        releaseCamera();
+    }
+
+    public void releaseCamera(){
+        if(camera!=null){
+            camera.release();
+            camera=null;
+        }
     }
 
     float[] mGravity;
@@ -328,11 +342,11 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 finalPitch= (float) Math.toDegrees(finalPitch);
                 finalRoll= (float) Math.toDegrees(finalRoll);
 
-                float UpperLimitPolar = currPolar+5;
-                float LowerLimitPolar = currPolar-5;
+                float UpperLimitPolar = currPolar+2;
+                float LowerLimitPolar = currPolar-2;
 
-                float UpperLimitAzimuth = currAzimuth+5;
-                float LowerLimitAzimuth = currAzimuth-5;
+                float UpperLimitAzimuth = currAzimuth+2;
+                float LowerLimitAzimuth = currAzimuth-2;
 
                 GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
                 if (polar >= LowerLimitPolar && polar <= UpperLimitPolar) {
