@@ -241,80 +241,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
             final Camera.PictureCallback pictureCallback=new Camera.PictureCallback() {
                 @Override
                 public void onPictureTaken(byte[] bytes, Camera camera) {
-//                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-//                if (pictureFile == null){
-//                    Log.d(TAG, "Error creating media file, check storage permissions");
-//                    return;
-//                }
-
-//                Bitmap pictureMap=BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-//                Matrix pictureMatrix=new Matrix();
-//                pictureMatrix.postRotate(90);
-//                Bitmap rotatedPicture=Bitmap.createBitmap(pictureMap, 0, 0, pictureMap.getWidth(), pictureMap.getHeight(), pictureMatrix, true);
-//
-//                ByteArrayOutputStream bos=new ByteArrayOutputStream();
-//                rotatedPicture.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-//                byte[] savedBytes=bos.toByteArray();
-
-//                try {
-//                    FileOutputStream fos = new FileOutputStream(pictureFile);
-//                    fos.write(bytes);
-//                    fos.close();
-//                } catch (FileNotFoundException e) {
-//                    Log.d(TAG, "File not found: " + e.getMessage());
-//                } catch (IOException e) {
-//                    Log.d(TAG, "Error accessing file: " + e.getMessage());
-//                }
-//
-//                try {
-//                    ExifInterface exifInterface = new ExifInterface(pictureFile.getPath());
-//                    String imgISO=exifInterface.getAttribute(ExifInterface.TAG_ISO);
-//                    Log.d("ISO", imgISO);
-//                }catch (IOException e){
-//                    e.printStackTrace();
-//                }
-
-                    try {
-                        Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                        String fileName = "JPEG_" + timeStamp + "_";
-//                    File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                        File storageDir = new File(Environment.getExternalStorageDirectory() +
-                                File.separator + "PanoClicks");
-                        boolean success = true;
-
-                        if(storageDir.isDirectory() && storageDir.exists()){
-                            Log.e("Test file", "File exists");
-                        }else{
-                            success=storageDir.mkdirs();
-                        }
-
-                        if (success) {
-                            File storageFolder = new File(storageDir + File.separator + folderTimeStamp);
-                            boolean folderCreated=true;
-
-                            if(storageFolder.isDirectory() && storageFolder.exists()){
-                                Log.e("Test Directory", "Directory exists");
-                            }else{
-                                folderCreated=storageFolder.mkdirs();
-                            }
-
-                            if(folderCreated) {
-                                try {
-                                    File image = File.createTempFile(fileName, ".jpg", storageFolder);
-                                    FileOutputStream fos = new FileOutputStream(image);
-                                    pic.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                                    fos.close();
-                                    Toast.makeText(getApplicationContext(), "Image saved in" + storageDir.toString(), Toast.LENGTH_SHORT).show();
-
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    } catch(Exception e){
-                        e.printStackTrace();
-                    }
+                    saveImage(bytes);
                     camera.startPreview();
                 }
             };
@@ -342,11 +269,11 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 finalPitch= (float) Math.toDegrees(finalPitch);
                 finalRoll= (float) Math.toDegrees(finalRoll);
 
-                float UpperLimitPolar = currPolar+2;
-                float LowerLimitPolar = currPolar-2;
+                float UpperLimitPolar = currPolar+5;
+                float LowerLimitPolar = currPolar-5;
 
-                float UpperLimitAzimuth = currAzimuth+2;
-                float LowerLimitAzimuth = currAzimuth-2;
+                float UpperLimitAzimuth = currAzimuth+5;
+                float LowerLimitAzimuth = currAzimuth-5;
 
                 GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
                 if (polar >= LowerLimitPolar && polar <= UpperLimitPolar) {
@@ -412,6 +339,58 @@ public class CameraActivity extends Activity implements SensorEventListener {
 
             }
         }
+    }
+
+    public void saveImage(final byte[] imageArray){
+        Runnable runnable=new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Bitmap pic = BitmapFactory.decodeByteArray(imageArray, 0, imageArray.length);
+                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                    String fileName = "JPEG_" + timeStamp + "_";
+                    File storageDir = new File(Environment.getExternalStorageDirectory() +
+                            File.separator + "PanoClicks");
+                    boolean success = true;
+
+                    if(storageDir.isDirectory() && storageDir.exists()){
+                        Log.e("Test file", "File exists");
+                    }else{
+                        success=storageDir.mkdirs();
+                    }
+
+                    if (success) {
+                        File storageFolder = new File(storageDir + File.separator + folderTimeStamp);
+                        boolean folderCreated=true;
+
+                        if(storageFolder.isDirectory() && storageFolder.exists()){
+                            Log.e("Test Directory", "Directory exists");
+                        }else{
+                            folderCreated=storageFolder.mkdirs();
+                        }
+
+                        if(folderCreated) {
+                            try {
+                                File image = File.createTempFile(fileName, ".jpg", storageFolder);
+                                FileOutputStream fos = new FileOutputStream(image);
+                                pic.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                                fos.close();
+//                                            Toast.makeText(getApplicationContext(), "Image saved in" + storageDir.toString(), Toast.LENGTH_SHORT).show();
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+
+            }
+        };
+
+        Thread thread=new Thread(runnable);
+        thread.start();
     }
 
     public List<Float> roll(List<Float> list, float newMember){
