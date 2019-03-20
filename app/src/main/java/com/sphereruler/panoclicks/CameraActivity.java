@@ -5,35 +5,25 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.shapes.Shape;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.sphereruler.panoclicks.Model.Angles;
 import com.sphereruler.panoclicks.Model.RootObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static android.content.ContentValues.TAG;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
 
@@ -53,7 +42,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
     SensorManager mSensorManager;
     Sensor accelerometer;
     Sensor magnetometer;
-    View myRectangleView;
+    View myCircleView;
     RootObject rootObject;
     float azimuth, roll, pitch, polar;
     float currAzimuth, currPolar;
@@ -88,7 +77,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
         cameraPreview=new CameraPreview(this, camera);
         FrameLayout frameLayout=(FrameLayout)findViewById(R.id.camera_preview);
         frameLayout.addView(cameraPreview);
-        myRectangleView=findViewById(R.id.myRectangleView);
+        myCircleView=findViewById(R.id.myCircleView);
         cameraButton=(FloatingActionButton)findViewById(R.id.button_capture);
 
         Camera.Parameters params= camera.getParameters();
@@ -302,7 +291,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 float UpperLimitAzimuth = currAzimuth+7;
                 float LowerLimitAzimuth = currAzimuth-7;
 
-                GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
+                GradientDrawable myGrad = (GradientDrawable) myCircleView.getBackground();
                 if (polar >= LowerLimitPolar && polar <= UpperLimitPolar) {
                     if (azimuth >= LowerLimitAzimuth && azimuth <= UpperLimitAzimuth) {
                         myGrad.setStroke(2, Color.GREEN);

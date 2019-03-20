@@ -34,7 +34,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/myRectangleView"
+        app:layout_constraintStart_toEndOf="@+id/myCircleView"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
@@ -48,7 +48,7 @@
         android:src="@drawable/ic_custom_arrow_left"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/myRectangleView"
+        app:layout_constraintEnd_toStartOf="@+id/myCircleView"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -64,7 +64,7 @@
         android:layout_marginBottom="8dp"
         android:src="@drawable/ic_custom_arrow_up"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/myRectangleView"
+        app:layout_constraintBottom_toTopOf="@+id/myCircleView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -85,17 +85,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintVertical_bias="0.3"
-        app:layout_constraintTop_toBottomOf="@+id/myRectangleView" />
+        app:layout_constraintTop_toBottomOf="@+id/myCircleView" />
 
     <View
-        android:id="@+id/myRectangleView"
-        android:layout_width="100dp"
+        android:id="@+id/myCircleView"
+        android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/shape_rectangle"
+        android:background="@drawable/shape_circle"
         app:layout_constraintBottom_toBottomOf="@+id/camera_preview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
