@@ -113,18 +113,28 @@ public class CameraActivity extends Activity implements SensorEventListener {
         currAzimuth= (float) anglesList.get(0).getAzimuth();
         currPolar= (float) anglesList.get(0).getPolar();
 
-
+        final Camera.PictureCallback pictureCallback=new Camera.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] bytes, Camera camera) {
+                saveImage(bytes);
+                camera.startPreview();
+            }
+        };
 
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                camera.takePicture(null, null, pictureCallback);
-//                counter++;
-//                if(counter<anglesList.size()){
-//                    currAzimuth= (float) anglesList.get(counter).getAzimuth();
-//                    currPolar= (float) anglesList.get(counter).getPolar();
-//                }
-//                Toast.makeText(getApplicationContext(), "Button Clicked", Toast.LENGTH_LONG).show();
+                try {
+                    camera.takePicture(null, null, pictureCallback);
+                    counter++;
+                    if (counter < anglesList.size()) {
+                        currAzimuth = (float) anglesList.get(counter).getAzimuth();
+                        currPolar = (float) anglesList.get(counter).getPolar();
+                    }
+                    Toast.makeText(getApplicationContext(), "Button Clicked", Toast.LENGTH_LONG).show();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
             }
         });
@@ -289,8 +299,8 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 float UpperLimitPolar = currPolar+5;
                 float LowerLimitPolar = currPolar-5;
 
-                float UpperLimitAzimuth = currAzimuth+5;
-                float LowerLimitAzimuth = currAzimuth-5;
+                float UpperLimitAzimuth = currAzimuth+7;
+                float LowerLimitAzimuth = currAzimuth-7;
 
                 GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
                 if (polar >= LowerLimitPolar && polar <= UpperLimitPolar) {
@@ -302,13 +312,13 @@ public class CameraActivity extends Activity implements SensorEventListener {
                         leftArrow.setVisibility(View.INVISIBLE);
                         rightArrow.setVisibility(View.INVISIBLE);
 
-                        camera.takePicture(null, null, pictureCallback);
-                        counter++;
-                        if(counter<anglesList.size()){
-                            currAzimuth= (float) anglesList.get(counter).getAzimuth();
-                            currPolar= (float) anglesList.get(counter).getPolar();
-                        }
-                        Toast.makeText(getApplicationContext(), "Button Clicked", Toast.LENGTH_LONG).show();
+//                        camera.takePicture(null, null, pictureCallback);
+//                        counter++;
+//                        if(counter<anglesList.size()){
+//                            currAzimuth= (float) anglesList.get(counter).getAzimuth();
+//                            currPolar= (float) anglesList.get(counter).getPolar();
+//                        }
+//                        Toast.makeText(getApplicationContext(), "Button Clicked", Toast.LENGTH_LONG).show();
 
                     }
                     else if(azimuth>=UpperLimitAzimuth)
