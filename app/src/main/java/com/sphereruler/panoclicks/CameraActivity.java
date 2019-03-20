@@ -227,6 +227,20 @@ public class CameraActivity extends Activity implements SensorEventListener {
     float[] mGravity;
     float[] mGeomagnetic;
 
+    float[] mGravityFiltered;
+    float[] mGeomagneticFiltered;
+
+    public float[] lowPassFilter(float input[],float output[])
+    {float alpha=0.025f;
+        if(output==null)
+            return input;
+
+        for(int i=1;i<input.length;i++)
+            output[i]=alpha*input[i] + (1-alpha)*(output[i]);
+
+        return output;
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
 
@@ -238,6 +252,9 @@ public class CameraActivity extends Activity implements SensorEventListener {
             float R[] = new float[9];
             float I[] = new float[9];
 
+            mGeomagneticFiltered=lowPassFilter(mGeomagnetic,mGeomagneticFiltered);
+            mGravityFiltered=lowPassFilter(mGravity,mGravityFiltered);
+
             final Camera.PictureCallback pictureCallback=new Camera.PictureCallback() {
                 @Override
                 public void onPictureTaken(byte[] bytes, Camera camera) {
@@ -246,7 +263,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 }
             };
 
-            boolean successMatrix = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+            boolean successMatrix = SensorManager.getRotationMatrix(R, I, mGravityFiltered, mGeomagneticFiltered);
             if (successMatrix) {
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
@@ -254,20 +271,20 @@ public class CameraActivity extends Activity implements SensorEventListener {
                 pitch = orientation[1];
                 roll = orientation[2];
 
-                rollingAverage[0] = roll(rollingAverage[0], azimuth);
-                rollingAverage[1] = roll(rollingAverage[1], pitch);
-                rollingAverage[2] = roll(rollingAverage[2], roll);
+//                rollingAverage[0] = roll(rollingAverage[0], azimuth);
+//                rollingAverage[1] = roll(rollingAverage[1], pitch);
+//                rollingAverage[2] = roll(rollingAverage[2], roll);
+//
+//                finalAzimuth = averageList(rollingAverage[0]);
+//                finalPitch = averageList(rollingAverage[1]);
+//                finalRoll = averageList(rollingAverage[2]);
 
-                finalAzimuth = averageList(rollingAverage[0]);
-                finalPitch = averageList(rollingAverage[1]);
-                finalRoll = averageList(rollingAverage[2]);
-
-                polar= (float) Math.acos(Math.cos(finalPitch)*Math.cos(finalRoll));
+                polar= (float) Math.acos(Math.cos(pitch)*Math.cos(roll));
                 polar=Math.round(Math.toDegrees(polar));
 
-                finalAzimuth= (float) Math.toDegrees(finalAzimuth);
-                finalPitch= (float) Math.toDegrees(finalPitch);
-                finalRoll= (float) Math.toDegrees(finalRoll);
+                azimuth= (float) Math.toDegrees(azimuth);
+                pitch= (float) Math.toDegrees(pitch);
+                roll= (float) Math.toDegrees(roll);
 
                 float UpperLimitPolar = currPolar+5;
                 float LowerLimitPolar = currPolar-5;
@@ -277,9 +294,9 @@ public class CameraActivity extends Activity implements SensorEventListener {
 
                 GradientDrawable myGrad = (GradientDrawable) myRectangleView.getBackground();
                 if (polar >= LowerLimitPolar && polar <= UpperLimitPolar) {
-                    if (finalAzimuth >= LowerLimitAzimuth && finalAzimuth <= UpperLimitAzimuth) {
+                    if (azimuth >= LowerLimitAzimuth && azimuth <= UpperLimitAzimuth) {
                         myGrad.setStroke(2, Color.GREEN);
-                        Toast.makeText(getApplicationContext(), String.valueOf(polar) + " + " + String.valueOf(finalAzimuth), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), String.valueOf(polar) + " + " + String.valueOf(azimuth), Toast.LENGTH_SHORT).show();
                         upArrow.setVisibility(View.INVISIBLE);
                         downArrow.setVisibility(View.INVISIBLE);
                         leftArrow.setVisibility(View.INVISIBLE);
@@ -294,7 +311,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
                         Toast.makeText(getApplicationContext(), "Button Clicked", Toast.LENGTH_LONG).show();
 
                     }
-                    else if(finalAzimuth>=UpperLimitAzimuth)
+                    else if(azimuth>=UpperLimitAzimuth)
                     {
                         leftArrow.setVisibility(View.VISIBLE);
                         rightArrow.setVisibility(View.INVISIBLE);
@@ -318,11 +335,11 @@ public class CameraActivity extends Activity implements SensorEventListener {
                         upArrow.setVisibility(View.VISIBLE);
                     }
 
-                    if (finalAzimuth >= LowerLimitAzimuth && finalAzimuth <= UpperLimitAzimuth) {
+                    if (azimuth >= LowerLimitAzimuth && azimuth <= UpperLimitAzimuth) {
                         leftArrow.setVisibility(View.INVISIBLE);
                         rightArrow.setVisibility(View.INVISIBLE);
                     }
-                    else if (finalAzimuth <= LowerLimitAzimuth) {
+                    else if (azimuth <= LowerLimitAzimuth) {
                         leftArrow.setVisibility(View.INVISIBLE);
                         rightArrow.setVisibility(View.VISIBLE);
                     }
@@ -333,7 +350,7 @@ public class CameraActivity extends Activity implements SensorEventListener {
 
 
                     myGrad.setStroke(2, Color.RED);
-                    Toast.makeText(getApplicationContext(), String.valueOf(polar) + " + " + String.valueOf(finalAzimuth), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), String.valueOf(polar) + " + " + String.valueOf(azimuth), Toast.LENGTH_SHORT).show();
                 }
 
 

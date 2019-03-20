@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SensorActivity extends Activity implements SensorEventListener {
     TextView polarAngle, azimuthAngle, pitchAngle,zAngle;
 
@@ -16,6 +19,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
     Sensor accelerometer;
     Sensor magnetometer;
     float azimuth, roll, pitch, polar;
+    final  int MAX_SAMPLE_SIZE=10;
+    List<Float>[] rollingAverage = new List[3];
+    float finalAzimuth,finalPitch,finalRoll;
 //    float mAzimuth,mPitch,mRoll;
 
     @Override
@@ -30,6 +36,10 @@ public class SensorActivity extends Activity implements SensorEventListener {
         azimuthAngle = (TextView) findViewById(R.id.azimuthAngle);
         pitchAngle = (TextView) findViewById(R.id.pitchAngle);
         zAngle=findViewById(R.id.zAngle);
+
+        rollingAverage[0] = new ArrayList<Float>();
+        rollingAverage[1] = new ArrayList<Float>();
+        rollingAverage[2] = new ArrayList<Float>();
 
     }
 
@@ -57,6 +67,39 @@ public class SensorActivity extends Activity implements SensorEventListener {
     float[] mGravity;
     float[] mGeomagnetic;
 
+    float[] mGravityFiltered;
+    float[] mGeomagneticFiltered;
+
+    public float[] lowPassFilter(float input[],float output[])
+    {float alpha=0.025f;
+        if(output==null)
+            return input;
+
+        for(int i=1;i<input.length;i++)
+            output[i]=alpha*input[i] + (1-alpha)*(output[i]);
+
+        return output;
+    }
+
+    public List<Float> roll(List<Float> list, float newMember){
+        if(list.size() == MAX_SAMPLE_SIZE){
+            list.remove(0);
+        }
+        list.add(newMember);
+        return list;
+    }
+
+    public float averageList(List<Float> tallyUp){
+
+        float total=0;
+        for(float item : tallyUp ){
+            total+=item;
+        }
+        total = total/tallyUp.size();
+
+        return total;
+    }
+
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             mGravity = event.values;
@@ -65,7 +108,12 @@ public class SensorActivity extends Activity implements SensorEventListener {
         if (mGravity != null && mGeomagnetic != null) {
             float R[] = new float[9];
             float I[] = new float[9];
-            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+
+
+            mGeomagneticFiltered=lowPassFilter(mGeomagnetic,mGeomagneticFiltered);
+            mGravityFiltered=lowPassFilter(mGravity,mGravityFiltered);
+
+            boolean success = SensorManager.getRotationMatrix(R, I, mGravityFiltered, mGeomagneticFiltered);
             if (success) {
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
@@ -73,11 +121,23 @@ public class SensorActivity extends Activity implements SensorEventListener {
                 pitch = orientation[1];
                 roll = orientation[2];
 
+
+//                rollingAverage[0] = roll(rollingAverage[0], azimuth);
+//                rollingAverage[1] = roll(rollingAverage[1], pitch);
+//                rollingAverage[2] = roll(rollingAverage[2], roll);
+//
+//                finalAzimuth = averageList(rollingAverage[0]);
+//                finalPitch = averageList(rollingAverage[1]);
+//                finalRoll = averageList(rollingAverage[2]);
+
+
 //                azimuth= (float) Math.toDegrees(azimuth);
 //                pitch= (float) Math.toDegrees(pitch);
 //                roll= (float) Math.toDegrees(roll);
 
                 polar = (float) Math.acos(Math.cos(pitch)*Math.cos(roll));
+
+
                 // orientation contains: azimut, pitch and roll
             }
 //        if (event.sensor.getType()==Sensor.TYPE_ORIENTATION) {
