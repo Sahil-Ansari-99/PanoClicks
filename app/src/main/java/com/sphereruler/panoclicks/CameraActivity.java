@@ -128,6 +128,16 @@ public class CameraActivity extends Activity implements SensorEventListener {
             }
         });
 
+        String path = Environment.getExternalStorageDirectory().toString()+"/PanoClicks";
+        Log.d("Files", "Path: " + path);
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        Log.d("Files", "Size: 0"+ files.length);
+        for (int i = 0; i < files.length; i++)
+        {
+            Log.d("Files", "FileName:" + files[i].getName());
+        }
+
     }
 
     public String loadJSONData(){

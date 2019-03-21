@@ -8,6 +8,9 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
@@ -29,6 +32,14 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView=(RecyclerView)findViewById(R.id.home_recyclerView);
         cameraButton=(FloatingActionButton)findViewById(R.id.home_cameraButton);
+
+        recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getBaseContext(),LinearLayoutManager.VERTICAL,false);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),LinearLayoutManager.VERTICAL));
 
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
