@@ -12,18 +12,26 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import com.sphereruler.panoclicks.Adapter.HomeAdapter;
+import com.sphereruler.panoclicks.Model.FileModel;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     FloatingActionButton cameraButton;
     private static int CAMERA_REQUEST_CODE=1888;
+
+    ArrayList<FileModel> fileList;
+    HomeAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +41,30 @@ public class MainActivity extends AppCompatActivity {
         recyclerView=(RecyclerView)findViewById(R.id.home_recyclerView);
         cameraButton=(FloatingActionButton)findViewById(R.id.home_cameraButton);
 
-        recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getBaseContext(),LinearLayoutManager.VERTICAL,false);
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),LinearLayoutManager.VERTICAL));
+
+        fileList=new ArrayList<>();
+
+        String path = Environment.getExternalStorageDirectory().toString()+"/PanoClicks";
+        Log.d("Files", "Path: " + path);
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        Log.d("Files", "Size: 0"+ files.length);
+        for (int i = 0; i < files.length; i++)
+        {
+            Log.d("Files", "FileName:" + files[i].getName());
+            FileModel model = new FileModel(files[i].getName(),files[i].lastModified());
+            fileList.add(model);
+        }
+
+        adapter=new HomeAdapter(fileList,getApplicationContext());
+
+        recyclerView.setAdapter(adapter);
 
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,35 +75,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openCamera(){
-        Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, CAMERA_REQUEST_CODE);
+        Intent intent=new Intent(getApplicationContext(),CameraActivity.class);
+        startActivity(intent);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode==CAMERA_REQUEST_CODE){
-            try {
-                Bitmap pic = (Bitmap) data.getExtras().get("data");
-                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                String fileName = "JPEG_" + timeStamp + "_";
-                File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                try {
-                    File image = File.createTempFile(fileName, ".jpg", storageDir);
-                    FileOutputStream fos = new FileOutputStream(image);
-                    pic.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                    fos.close();
-                    Toast.makeText(getApplicationContext(), "Image saved in" + storageDir.toString(), Toast.LENGTH_SHORT).show();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
 
 }
